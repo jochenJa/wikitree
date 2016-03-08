@@ -80,33 +80,45 @@ class Treeify
 
     public function reduceOn($entrypoint)
     {
-        $this->usedEntryPoints = [];
-        return $this->reduceFurther($entrypoint);
+        $this->usedEntryPoints[$entrypoint] = true;
+
+        return $this->categorize(array_map(
+            function($path) { return [$path]; },
+            $this->getPoint($entrypoint)
+        ));
     }
 
-    private function reduceFurther($entrypoint)
+    public function categorize($links)
     {
-        if(
-            ! array_key_exists($entrypoint, $this->tree)
-            || in_array($entrypoint, $this->usedEntryPoints)
+        var_dump($this->usedEntryPoints);
 
-        ) { return false; }
+        $categorized = array_reduce(
+            $links,
+            function($paths, $path) {
+                $link = reset($path);
 
-        $this->usedEntryPoints[] = $entrypoint;
+                if(array_key_exists($link, $this->usedEntryPoints)) return $path;
 
-        return array_reduce(
-            $this->tree[$entrypoint],
-            function($path, $filename) {
-                $subfiles = $this->reduceFurther($filename);
-                $path[$filename] = $subfiles ?: $filename;
+                $subs = array_map(
+                    function($sublink) use ($path) {
+                        array_unshift($path, $sublink);
 
-                return $path;
+                        return $path;
+                    },
+                    $this->getPoint($link)
+                );
+
+                return array_merge($paths, $subs);
             },
             []
         );
+
+        foreach($categorized as $paths) { $this->usedEntryPoints[reset($paths)] = true; }
+
+        return $categorized;
     }
 
-    public function getPoint($point) { return $this->tree[$point]; }
+    public function getPoint($point) { return isset($this->tree[$point]) ? $this->tree[$point] : []; }
     public function get() { return $this->tree; }
 }
 

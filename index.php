@@ -40,17 +40,31 @@ foreach($fileList as $fileName)
 }
 
 
-$paths = $tree->reduceOn('dragintra/start.txt');
+//$paths = $tree->reduceOn('dragintra/start.txt');
+$paths = $tree->reduceon('dragintra/start.txt');
+$paths = $tree->categorize($paths);
 
-function pathify($path, $files) {
-    foreach ($files as $filename => $subs) {
-        $path = $path.'|'.str_replace('dragintra/', '', str_replace('.txt', '', $filename));
-        if(is_array($subs)) pathify($path, $subs);
-        else echo $path.'<br />';
-    }
+//$paths = $tree->categorize($paths);
+//$paths = $tree->categorize($paths);
+//$paths = $tree->categorize($paths);
+//$paths = $tree->categorize($paths);
+pathify($paths);
+
+function pathify($paths) {
+   foreach($paths as $path) {
+       echo sprintf(
+           '<div>%s</div>',
+           implode('||', array_reverse(
+               array_map(
+                   function($file) { return cleanupfn($file); },
+                   $path
+               )
+           ))
+       );
+   }
 }
 
-pathify('start', $paths);
+function cleanupfn($filename) { return str_replace('dragintra/', '', str_replace('.txt', '', $filename));}
 
 exit;
 
