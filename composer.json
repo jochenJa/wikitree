@@ -1,0 +1,12 @@
+{
+    "name": "jochen/wikitree",
+    "require": {
+        "symfony/var-dumper": "^3.0"
+    },
+    "authors": [
+        {
+            "name": "jochen",
+            "email": "jochen.janssens@tactics.be"
+        }
+    ]
+}

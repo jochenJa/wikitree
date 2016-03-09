@@ -1,11 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jochen.janssens
- * Date: 3/03/2016
- * Time: 10:32
- */
 
+require_once('vendor/autoload.php');
 require_once('Treeify.php');
 
 $struct = [
@@ -25,43 +20,62 @@ $struct = [
 
 $tree = new Treeify();
 
-foreach($fileList as $fileName)
+foreach($struct as $name => $content)
 {
-    $linked = array_filter(
-        $tree->linkedFiles(file_get_contents(WIKI_PATH.$fileName)),
-        function($filename) { return file_exists(WIKI_PATH.$filename); }
-    );
-
-    if(count($linked)) {
-        $tree->add(
-            $fileName,
-            array_unique($linked)
-        );
-    }
+    $linked = $tree->scan($content);
+    $tree->add($name, $linked);
 }
 
-$paths = $tree->reduceon('S');
-$paths = $tree->categorize($paths);
-$paths = $tree->categorize($paths);
-//$paths = $tree->categorize($paths);
+echo $tree.'<hr><br>';
 
+$paths = $tree->reduceOn('S');
+$paths = $tree->categorize($paths);
+$paths = $tree->categorize($paths);
+$paths = $tree->categorize($paths);
 pathify($paths);
+
+$l = array_reduce(
+    $paths,
+    function($set, $path) {
+        $set[array_shift($path)][] = array_reverse($path);
+
+        return $set;
+    },
+    []
+);
+
+
+$findCommonPath = function($paths) {
+    $steps = array_reduce(
+        $paths,
+        function($steps, $path) { return count($path) >= $steps ? $steps : count($path); },
+        999
+    );
+
+    $column = 0;
+    while($column < $steps && count(array_unique(array_column($paths, $column))) == 1) { $column++; }
+
+    return array_unique(array_column($paths, --$column));
+
+};
+
+dump($l);
+
+dump(array_map(
+    function($paths) use ($findCommonPath) { return $findCommonPath($paths); },
+    $l
+));
+
 
 function pathify($paths) {
    foreach($paths as $path) {
        echo sprintf(
            '<div>%s</div>',
-           implode('||', array_reverse(
-               array_map(
-                   function($file) { return cleanupfn($file); },
-                   $path
-               )
-           ))
+           implode('||', array_reverse($path))
        );
    }
 }
 
-function cleanupfn($filename) { return str_replace('dragintra/', '', str_replace('.txt', '', $filename));}
 
 exit;
 

@@ -12,7 +12,7 @@ class Treeify
     private $tree = [];
     private $usedEntryPoints = [];
 
-    private function scan(string $fileContents): array
+    public function scan(string $fileContents): array
     {
         $found = [];
         preg_match_all('/(?<=\[\[)(?!http)([^\]]*)/', $fileContents, $found);
@@ -20,7 +20,7 @@ class Treeify
         $found = (array)reset($found);
 
         return array_map(
-            function($link) { if($link) return explode('|', $link)[0]; },
+            function($link) { return explode('|', $link)[0]; },
             $found
         );
     }
@@ -56,34 +56,18 @@ class Treeify
         $treeview = '';
         foreach($this->tree as $filename => $linked)
              $treeview .= sprintf(
-                 '<div>%s<ul><li>%s</li></ul></div>', $filename, implode('</li><li>', $linked));
+                 '[%s] => [%s]<br>', $filename, implode(',', $linked));
 
         return $treeview;
     }
 
-    public function flip()
-    {
-        $flipped = [];
-        foreach($this->tree as $filename => $linked) {
-            foreach($linked as $link) {
-                $flipped[$link][] = $filename;
-            }
-        }
-
-        $flipped = array_filter(
-            $flipped,
-            function($usedInFiles) { return (count($usedInFiles) > 1); }
-        );
-
-        return $flipped;
-    }
 
     public function reduceOn($entrypoint)
     {
         $this->usedEntryPoints[$entrypoint] = true;
 
         return $this->categorize(array_map(
-            function($path) { return [$path]; },
+            function($path) use ($entrypoint) { return [$path, $entrypoint]; },
             $this->getPoint($entrypoint)
         ));
     }
@@ -97,20 +81,19 @@ class Treeify
 
                 $subs = array_map(
                     function($sublink) use ($path) {
-                        //if(! array_key_exists($sublink, $this->usedEntryPoints))
-                            array_unshift($path, $sublink);
+                        array_unshift($path, $sublink);
 
                         return $path;
                     },
                     $this->getPoint($link)
                 );
 
-                return array_merge($paths, $subs);
+                return array_merge($paths, $subs ?: [$path]);
             },
             []
         );
 
-        foreach($categorized as $paths) { $this->usedEntryPoints[reset($paths)] = true; }
+        //foreach($categorized as $paths) { $this->usedEntryPoints[reset($paths)] = true; }
 
         return $categorized;
     }
