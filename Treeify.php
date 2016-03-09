@@ -90,18 +90,15 @@ class Treeify
 
     public function categorize($links)
     {
-        var_dump($this->usedEntryPoints);
-
         $categorized = array_reduce(
             $links,
             function($paths, $path) {
                 $link = reset($path);
 
-                if(array_key_exists($link, $this->usedEntryPoints)) return $path;
-
                 $subs = array_map(
                     function($sublink) use ($path) {
-                        array_unshift($path, $sublink);
+                        //if(! array_key_exists($sublink, $this->usedEntryPoints))
+                            array_unshift($path, $sublink);
 
                         return $path;
                     },

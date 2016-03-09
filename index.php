@@ -40,14 +40,11 @@ foreach($fileList as $fileName)
 }
 
 
-//$paths = $tree->reduceOn('dragintra/start.txt');
 $paths = $tree->reduceon('dragintra/start.txt');
 $paths = $tree->categorize($paths);
+$paths = $tree->categorize($paths);
+//$paths = $tree->categorize($paths);
 
-//$paths = $tree->categorize($paths);
-//$paths = $tree->categorize($paths);
-//$paths = $tree->categorize($paths);
-//$paths = $tree->categorize($paths);
 pathify($paths);
 
 function pathify($paths) {
