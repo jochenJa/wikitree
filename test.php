@@ -61,11 +61,10 @@ $findCommonPath = function($paths) {
 
 dump($l);
 
-dump(array_map(
-    function($paths) use ($findCommonPath) { return $findCommonPath($paths); },
-    $l
+dump(array_filter(
+    $l,
+    function($paths) { return count($paths) > 1;}
 ));
-
 
 function pathify($paths) {
    foreach($paths as $path) {
@@ -75,7 +74,6 @@ function pathify($paths) {
        );
    }
 }
-
 
 exit;
 

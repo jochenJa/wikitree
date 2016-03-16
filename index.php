@@ -5,12 +5,12 @@
  * Date: 3/03/2016
  * Time: 10:32
  */
-
+require_once('vendor/autoload.php');
 require_once('Treeify.php');
 
-const WIKI_PATH = 'd:/xampp53/htdocs/dragintra/dev/www/wiki/data/pages/';
+const WIKI_PATH = 'k:/wiki/pages/';
 const WIKI_NAME = 'dragintra';
-const SHADOW_PATH = '../shadowcopy';
+const SHADOW_PATH = 'k:/wiki/pages/shadowcopy';
 
 $fileList = [];
 if ($handle = opendir(WIKI_PATH.WIKI_NAME.'/')) {
@@ -40,12 +40,28 @@ foreach($fileList as $fileName)
 }
 
 
-$paths = $tree->reduceon('dragintra/start.txt');
+$paths = $tree->reduceon('dragintra/athlon_car_lease.txt');
+$paths = $tree->categorize($paths);
 $paths = $tree->categorize($paths);
 $paths = $tree->categorize($paths);
 //$paths = $tree->categorize($paths);
 
-pathify($paths);
+//pathify($paths);
+
+$l = array_reduce(
+    $paths,
+    function($set, $path) {
+        $first = array_shift($path);
+        $set[$first == '#' ? array_shift($path) : $first][] = array_reverse($path);
+
+        return $set;
+    },
+    []
+);
+
+dump($l);
+
+exit;
 
 function pathify($paths) {
    foreach($paths as $path) {
@@ -63,5 +79,4 @@ function pathify($paths) {
 
 function cleanupfn($filename) { return str_replace('dragintra/', '', str_replace('.txt', '', $filename));}
 
-exit;
 

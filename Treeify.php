@@ -41,8 +41,9 @@ class Treeify
     public function linkedFiles(string $fileContents) : array
     {
         return array_map(
-            function($link) { return $this->linkToFilePath($link); },
-            $this->scan($fileContents)
+            function($link){
+                return $this->linkToFilePath($link); },
+            array_filter($this->scan($fileContents))
         );
     }
 
@@ -79,21 +80,30 @@ class Treeify
             function($paths, $path) {
                 $link = reset($path);
 
-                $subs = array_map(
-                    function($sublink) use ($path) {
-                        array_unshift($path, $sublink);
+                if($link !== '#') {
+                    $subs = array_map(
+                        function($sublink) use ($path) {
+                            if(in_array($sublink, $path)) { $sublink = '#'; }
+                            array_unshift($path, $sublink);
 
-                        return $path;
-                    },
-                    $this->getPoint($link)
-                );
+                            return $path;
+                        },
+                        $this->getPoint($link)
+                    );
+                } else {
+                    return array_merge($paths, [$path]);
+                }
 
-                return array_merge($paths, $subs ?: [$path]);
+                if(! $subs) {
+                    array_unshift($path, '#');
+                    return array_merge($paths, [$path]);
+                }
+
+                return array_merge($paths, $subs);
+
             },
             []
         );
-
-        //foreach($categorized as $paths) { $this->usedEntryPoints[reset($paths)] = true; }
 
         return $categorized;
     }
