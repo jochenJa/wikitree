@@ -41,56 +41,74 @@ foreach($fileList as $fileName)
 
 $steps = [
     ['dragintra/poolwagenbeheerder_-_care4fleets.txt', '/dragintra/leverancierscontacten/', 3],
-    //['dragintra/leverancierscontacten.txt', '/dragintra/leverancierscontacten/', 4],
-    //['dragintra/athlon_car_lease.txt', '/dragintra/contacten/', 3],
+    ['dragintra/leverancierscontacten.txt', '/dragintra/leverancierscontacten/', 4],
+    ['dragintra/athlon_car_lease.txt', '/dragintra/contacten/', 3],
     //['dragintra/leaseplan.txt', '/dragintra/contacten/', 3]
 ];
 
-array_walk(
-    $steps,
-    function($data) use (&$tree) {
-        list($ep, $path, $end) = $data;
+foreach ($steps as list($ep, $path, $end))
+{
+    $paths = $tree->reduceon($ep);
+    $step = 0;
+    while ($end > $step)
+    {
+        $paths = $tree->categorize($paths);
+        $step++;
+    }
 
-        $paths = $tree->reduceon($ep);
-        $step = 0;
-        while($end > $step) {
-            $paths = $tree->categorize($paths);
-            $step++;
-        }
+    $l = array_reduce(
+        $paths,
+        function ($set, $path)
+        {
+            $first = array_shift($path);
+            $set[$first == '#' ? array_shift($path) : $first][] = array_reverse($path);
 
-        $l = array_reduce(
-            $paths,
-            function($set, $path) {
-                $first = array_shift($path);
-                $set[$first == '#' ? array_shift($path) : $first][] = array_reverse($path);
+            return $set;
+        },
+        []
+    );
 
-                return $set;
-            },
-            []
-        );
-
-        $ep = SHADOW_PATH.$path;
-        if(! is_dir($ep)) mkdir($ep);
-        else {
-            $files = glob($ep.'*');
-            foreach($files as $file){ if(is_file($file)) unlink($file); }
-        }
-
-        foreach(array_filter($l, function($paths) { if(count($paths) > 1) dump($paths);return count($paths) == 1; }) as $file => $path) {
-            $parts = explode('/', $file);
-            if(copy(WIKI_PATH.$file, $ep.end($parts))) {
-                $tree->removePoint($file);
+    $ep = SHADOW_PATH . $path;
+    if (!is_dir($ep))
+    {
+        mkdir($ep);
+    }
+    else
+    {
+        $files = glob($ep . '*');
+        foreach ($files as $file)
+        {
+            if (is_file($file))
+            {
+                unlink($file);
             }
         }
-
-        $after = array_filter($l, function($paths) { return count($paths) > 1; });
-        dump($l, $after);
-        if(count($after) == 0){ $tree->removePoint($ep); }
-        else { dump($after); }
     }
-);
 
-dump('t',$tree->getPoint('dragintra/poolwagenbeheerder_-_care4fleets.txt'));
+    foreach (array_filter($l, function ($paths) { return count($paths) == 1; }) as $file => $path)
+    {
+        $parts = explode('/', $file);
+        if (copy(WIKI_PATH . $file, $ep . end($parts)))
+        {
+            $tree->removePoint($file);
+        }
+
+    }
+
+    $after = array_filter($l, function ($paths)
+    {
+        return count($paths) > 1;
+    });
+    if (!count($after))
+    {
+        $tree->removePoint($ep);
+    }
+    else
+    {
+        dump($after);
+    }
+}
+
 $paths = $tree->reduceon('dragintra/athlon_car_lease.txt');
 $paths = $tree->categorize($paths);
 $paths = $tree->categorize($paths);
