@@ -110,6 +110,13 @@ class Treeify
 
     public function getPoint($point) { return isset($this->tree[$point]) ? $this->tree[$point] : []; }
     public function get() { return $this->tree; }
+
+    public function removePoint($ep)
+    {
+        $before = count($this->tree);
+        unset($this->tree[$ep]);
+        if($before != count($this->tree)) dump($ep .' : ' .$before .' >> '. count($this->tree));
+    }
 }
 
 function normalize ($string) {
