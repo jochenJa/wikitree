@@ -5,12 +5,13 @@
  * Date: 3/03/2016
  * Time: 10:32
  */
+ini_set('max_execution_time', 0);
 require_once('vendor/autoload.php');
 require_once('Treeify.php');
 
-const WIKI_PATH = 'k:/wiki/pages/';
+const WIKI_PATH = 'd:/wiki/pages/';
 const WIKI_NAME = 'dragintra';
-const SHADOW_PATH = 'k:/wiki/pages/shadowcopy';
+const SHADOW_PATH = 'd:/wiki/pages/shadowcopy';
 
 $fileList = [];
 if ($handle = opendir(WIKI_PATH.WIKI_NAME.'/')) {
@@ -40,16 +41,59 @@ foreach($fileList as $fileName)
 }
 
 $steps = [
-    ['dragintra/poolwagenbeheerder_-_care4fleets.txt', '/dragintra/leverancierscontacten/', 3],
-    ['dragintra/leverancierscontacten.txt', '/dragintra/leverancierscontacten/', 4],
+    ['dragintra/poolwagenbeheerder_-_care4fleets.txt', '/dragintra/contacten/', 3],
+    ['dragintra/leverancierscontacten.txt', '/dragintra/contacten/', 4],
     ['dragintra/athlon_car_lease.txt', '/dragintra/contacten/', 3],
-    //['dragintra/leaseplan.txt', '/dragintra/contacten/', 3]
+    ['dragintra/leaseplan.txt', '/dragintra/contacten/', 3],
+    ['dragintra/care4fleets.txt', '/dragintra/contacten/', 3],
+    ['dragintra/ald_automotive.txt', '/dragintra/contacten/', 3],
+    ['dragintra/abn_amro20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/arval.txt', '/dragintra/contacten/', 2],
+    ['dragintra/daimler.txt', '/dragintra/contacten/', 2],
+    ['dragintra/alphabet.txt', '/dragintra/contacten/', 2],
+    ['dragintra/belfius_lease.txt', '/dragintra/contacten/', 2],
+    ['dragintra/aig20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/arseus20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/sap20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/atos_leverancier.txt', '/dragintra/contacten/', 2],
+    ['dragintra/jdenl20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/wurth20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/arcelormittal20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/blogistics20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/bsh20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/elia20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/henkel20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/mastercard_leverancier.txt', '/dragintra/contacten/', 2],
+    ['dragintra/novartis20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/luminus20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/total20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/bank_degroof20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/mediahuis.txt', '/dragintra/contacten/', 2],
+    ['dragintra/techdata20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/jde_coffee2.txt', '/dragintra/contacten/', 2],
+    ['dragintra/goodman20.txt', '/dragintra/contacten/', 2],
+    ['dragintra/contactgegevens_per_klant.txt', '/dragintra/contacten/', 3],
+    ['dragintra/klant.txt', '/dragintra/contacten/', 3],
+    ['dragintra/contacten.txt', '/dragintra/contacten/', 4],
+
+    //['dragintra/doorbelastingen.txt', '/dragintra/accounts_payable/doorbelastingen/', 1],
+    //['dragintra/type_kost.txt', '/dragintra/accounts_payable/doorbelastingen/', 4],
+
+//    ['dragintra/afleveradres_korte_termijn.txt', '/dragintra/fleetkennis/leasing/', 4],
+//    ['dragintra/opvoeren_korte_termijn.txt', '/dragintra/fleetkennis/leasing/', 4],
+//    ['dragintra/levering_kt_wagen.txt', '/dragintra/fleetkennis/leasing/', 4],
+//    ['dragintra/manueel_opvoeren_van_schadegeval.txt', '/dragintra/fleetkennis/leasing/', 4],
+//    ['dragintra/leasing.txt', '/dragintra/fleetkennis/leasing/', 4],
+//    ['dragintra/schade_met_tegenpartij_zonder_schadeapp.txt', '/dragintra/fleetkennis/leasing/', 4],
+//    ['dragintra/leasing.txt', '/dragintra/fleetkennis/leasing/', 4],
+
 ];
 
 foreach ($steps as list($ep, $path, $end))
 {
+    $leftovers = [];
     $paths = $tree->reduceon($ep);
-    $step = 0;
+    $step = 1;
     while ($end > $step)
     {
         $paths = $tree->categorize($paths);
@@ -58,58 +102,67 @@ foreach ($steps as list($ep, $path, $end))
 
     $l = array_reduce(
         $paths,
-        function ($set, $path)
+        function ($set, $path) use (&$leftovers)
         {
             $first = array_shift($path);
-            $set[$first == '#' ? array_shift($path) : $first][] = array_reverse($path);
+            // keep ending paths, skip unfinished.
+            if(! in_array($first, ['#','LNK'])) {
+                $leftovers[$first][] = array_reverse($path);
+                return $set;
+            }
+            //$set[in_array($first, ['#','LNK']) ? array_shift($path) : $first][] = array_reverse($path);
+            $set[array_shift($path)][] = array_reverse($path);
 
             return $set;
         },
         []
     );
-
-    $ep = SHADOW_PATH . $path;
-    if (!is_dir($ep))
-    {
-        mkdir($ep);
-    }
-    else
-    {
-        $files = glob($ep . '*');
-        foreach ($files as $file)
+//dump($l, $leftovers);
+    $step = '/dragintra/';
+    foreach(array_filter(explode('/', str_replace('dragintra/','', $path))) as $dir) {
+        $step .= $dir.'/';
+        $dir = SHADOW_PATH.$step;
+        if (!is_dir($dir))
         {
-            if (is_file($file))
+            mkdir($dir);
+        }
+        else
+        {
+            $files = glob($ep . '*');
+            foreach ($files as $file)
             {
-                unlink($file);
+                if (is_file($file))
+                {
+                    unlink($file);
+                }
             }
         }
     }
+    $epdir = SHADOW_PATH . $path;
 
     foreach (array_filter($l, function ($paths) { return count($paths) == 1; }) as $file => $path)
     {
         $parts = explode('/', $file);
-        if (copy(WIKI_PATH . $file, $ep . end($parts)))
+        if (copy(WIKI_PATH . $file, $epdir . end($parts)))
         {
             $tree->removePoint($file);
         }
 
     }
 
-    $after = array_filter($l, function ($paths)
-    {
-        return count($paths) > 1;
-    });
+    $after = array_filter($l, function ($paths) { return count($paths) > 1; });
     if (!count($after))
     {
         $tree->removePoint($ep);
     }
     else
     {
-        dump($after);
+        dump($ep, $after);
     }
 }
 
-$paths = $tree->reduceon('dragintra/athlon_car_lease.txt');
+
+$paths = $tree->reduceon('dragintra/start.txt');
 $paths = $tree->categorize($paths);
 $paths = $tree->categorize($paths);
 $paths = $tree->categorize($paths);
@@ -128,6 +181,7 @@ $l = array_reduce(
     []
 );
 
+dump($l);
 
 //$ep = SHADOW_PATH.'/dragintra/leverancierscontacten/';
 //mkdir($ep);

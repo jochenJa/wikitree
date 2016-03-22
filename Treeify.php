@@ -67,9 +67,12 @@ class Treeify
     {
         $this->usedEntryPoints[$entrypoint] = true;
 
+        $paths = $this->getPoint($entrypoint);
+        if(! is_array($paths)) return [];
+
         return $this->categorize(array_map(
             function($path) use ($entrypoint) { return [$path, $entrypoint]; },
-            $this->getPoint($entrypoint)
+            $paths
         ));
     }
 
@@ -80,6 +83,7 @@ class Treeify
             function($paths, $path) {
                 $link = reset($path);
 
+                if($this->getPoint($link) == 'LNK') return $paths;
                 if($link !== '#') {
                     $subs = array_map(
                         function($sublink) use ($path) {
@@ -113,9 +117,8 @@ class Treeify
 
     public function removePoint($ep)
     {
-        $before = count($this->tree);
-        unset($this->tree[$ep]);
-        if($before != count($this->tree)) dump($ep .' : ' .$before .' >> '. count($this->tree));
+        $this->tree[$ep] = "LNK";
+        //dump($ep . " LINKED");
     }
 }
 
