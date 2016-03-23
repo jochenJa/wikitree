@@ -112,8 +112,10 @@ class Treeify
 
     public function removePoint($ep)
     {
+        $data = [$ep, $this->getPoint($ep)];
         $this->setPoint($ep, 'LNK');
-        //dump($ep . " LINKED");
+
+        return $data;
     }
 }
 
