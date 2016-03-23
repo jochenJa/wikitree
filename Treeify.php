@@ -56,8 +56,10 @@ class Treeify
     {
         $treeview = '';
         foreach($this->tree as $filename => $linked)
-             $treeview .= sprintf(
-                 '[%s] => [%s]<br>', $filename, implode(',', $linked));
+            $hlp = is_array($linked) ? $linked : [];
+            $treeview .= sprintf(
+                 '[%s] => [%s]<br>', $filename, implode(',', $hlp)
+            );
 
         return $treeview;
     }

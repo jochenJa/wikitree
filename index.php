@@ -161,7 +161,9 @@ $steps = [
     ['dragintra/datacheck_fleet_pack.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/nieuwe_medewerker_in_dienst.txt', '/dragintra/senior_driverdesk/', 4],
 ];
-array_map(function($links) use ($tree) { $tree->setPoint($links[0], $links[1]); },$hlp);
+echo $tree;
+array_map(function($links) use (&$tree) { $tree->setPoint($links[0], $links[1]); },$hlp);
+echo $tree;
 shadowcopy($steps, $tree);
 
 $paths = $tree->reduceon('dragintra/start.txt');
@@ -211,7 +213,7 @@ function pathify($paths) {
 
 function cleanupfn($filename) { return str_replace('dragintra/', '', str_replace('.txt', '', $filename));}
 
-function shadowcopy($steps, $tree)
+function shadowcopy($steps, Treeify $tree)
 {
     foreach ($steps as list($ep, $path, $end))
     {
