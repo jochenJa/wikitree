@@ -160,7 +160,6 @@ $steps = [
     ['dragintra/zie_werkwijze.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/datacheck_fleet_pack.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/nieuwe_medewerker_in_dienst.txt', '/dragintra/senior_driverdesk/', 4],
-    ['dragintra/start.txt', '/dragintra/', 4],
 ];
 array_map(function($links) use ($tree) { $tree->setPoint($links[0], $links[1]); },$hlp);
 shadowcopy($steps, $tree);
