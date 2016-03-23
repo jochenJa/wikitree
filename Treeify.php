@@ -83,8 +83,8 @@ class Treeify
             function($paths, $path) {
                 $link = reset($path);
 
-                if($this->getPoint($link) == 'LNK') return $paths;
-                if($link !== '#') {
+                $subs = [];
+                if(is_array($this->getPoint($link))) {
                     $subs = array_map(
                         function($sublink) use ($path) {
                             if(in_array($sublink, $path)) { $sublink = '#'; }
@@ -94,17 +94,11 @@ class Treeify
                         },
                         $this->getPoint($link)
                     );
-                } else {
-                    return array_merge($paths, [$path]);
                 }
 
-                if(! $subs) {
-                    array_unshift($path, '#');
-                    return array_merge($paths, [$path]);
-                }
+                if($link != '#') array_unshift($path, '#');
 
-                return array_merge($paths, $subs);
-
+                return array_merge($paths, array_merge([$path], $subs));
             },
             []
         );
@@ -113,11 +107,12 @@ class Treeify
     }
 
     public function getPoint($point) { return isset($this->tree[$point]) ? $this->tree[$point] : []; }
+    public function setPoint($point, $links) { return $this->tree[$point] = $links; }
     public function get() { return $this->tree; }
 
     public function removePoint($ep)
     {
-        $this->tree[$ep] = "LNK";
+        $this->setPoint($ep, 'LNK');
         //dump($ep . " LINKED");
     }
 }
