@@ -8,41 +8,44 @@
  */
 class Treeify
 {
-
     private $tree = [];
-    private $usedEntryPoints = [];
 
     public function scan(string $fileContents): array
     {
         $found = [];
         preg_match_all('/(?<=\[\[)(?!http)([^\]]*)/', $fileContents, $found);
 
-        $found = (array)reset($found);
-
+        $found = array_filter(reset($found), function($link) { return (! preg_match('/:\|/', $link)); });
         return array_map(
             function($link) { return explode('|', $link)[0]; },
             $found
         );
     }
 
-    private function linkToFilePath(string $link) : string
+    private function linkToFilePath(string $link, $parent = false) : string
     {
+        $data = [$link, $parent];
         if(! $link) throw new Exception('link is not defined.');
 
-        $filePath = strtolower($link);
-        $filePath = normalize($filePath);
-        $filePath = preg_replace('/[\' ]/', '_', $filePath);
-        $filePath = str_replace(':', '/', $filePath);
+        $filePath = normalize($link);
+        $data['norm'] = $filePath;
+        $filePath = strtolower($filePath);
+        $data['lwr'] = $filePath;
+        $filePath = preg_replace('/:[ ]*/', '/', $filePath);
+        $data['path'] = $filePath;
+        $filePath = preg_replace('/[\' <>&]+/', '_', trim($filePath));
+        $data['special'] = $filePath;
         $filePath .= '.txt';
-
+        $data['file'] = $filePath;
+        //if(!file_exists('d:/wiki/pages/'.$filePath)) dump($data);
         return $filePath;
     }
 
-    public function linkedFiles(string $fileContents) : array
+    public function linkedFiles(string $fileContents, $parent = false) : array
     {
         return array_map(
-            function($link){
-                return $this->linkToFilePath($link); },
+            function($link)use ($parent) {
+                return $this->linkToFilePath($link, $parent); },
             array_filter($this->scan($fileContents))
         );
     }
@@ -56,10 +59,12 @@ class Treeify
     {
         $treeview = '';
         foreach($this->tree as $filename => $linked)
+        {
             $hlp = is_array($linked) ? $linked : [];
             $treeview .= sprintf(
-                 '[%s] => [%s]<br>', $filename, implode(',', $hlp)
+                '[%s] => [%s]<br>', $filename, implode(',', $hlp)
             );
+        }
 
         return $treeview;
     }
@@ -67,15 +72,15 @@ class Treeify
 
     public function reduceOn($entrypoint)
     {
-        $this->usedEntryPoints[$entrypoint] = true;
-
         $paths = $this->getPoint($entrypoint);
         if(! is_array($paths)) return [];
 
-        return $this->categorize(array_map(
+        $paths = $this->categorize(array_map(
             function($path) use ($entrypoint) { return [$path, $entrypoint]; },
             $paths
         ));
+
+        return array_merge([['#', $entrypoint]], $paths);
     }
 
     public function categorize($links)
@@ -129,8 +134,9 @@ function normalize ($string) {
         'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U', 'Ú'=>'U', 'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss',
         'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a', 'å'=>'a', 'æ'=>'a', 'ç'=>'c', 'è'=>'e', 'é'=>'e',
         'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o',
-        'ô'=>'o', 'õ'=>'o', 'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b',
+        'ô'=>'o', 'õ'=>'o', 'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ü'=>'ue', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b',
         'ÿ'=>'y', 'R'=>'R', 'r'=>'r',
+        '²'=>'&', '³'=>'&',
     );
 
     return strtr($string, $table);

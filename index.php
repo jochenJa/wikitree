@@ -9,9 +9,9 @@ ini_set('max_execution_time', 0);
 require_once('vendor/autoload.php');
 require_once('Treeify.php');
 
-const WIKI_PATH = 'k:/wiki/pages/';
+const WIKI_PATH = 'd:/wiki/pages/';
 const WIKI_NAME = 'dragintra';
-const SHADOW_PATH = 'k:/wiki/pages/shadowcopy';
+const SHADOW_PATH = 'd:/wiki/pages/shadowcopy';
 
 $fileList = [];
 if ($handle = opendir(WIKI_PATH.WIKI_NAME.'/')) {
@@ -28,8 +28,11 @@ $tree = new Treeify();
 foreach($fileList as $fileName)
 {
     $linked = array_filter(
-        $tree->linkedFiles(file_get_contents(WIKI_PATH.$fileName)),
-        function($filename) { return file_exists(WIKI_PATH.$filename); }
+        $tree->linkedFiles(file_get_contents(WIKI_PATH.$fileName), WIKI_PATH.$fileName),
+        function($filename) {
+            if(! file_exists(WIKI_PATH.$filename)) { return false; }
+            return true;
+        }
     );
 
     if(count($linked)) {
@@ -160,13 +163,19 @@ $steps = [
     ['dragintra/zie_werkwijze.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/datacheck_fleet_pack.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/nieuwe_medewerker_in_dienst.txt', '/dragintra/senior_driverdesk/', 4],
+    ['dragintra/start.txt', '/dragintra/', 4],
 ];
-echo $tree;
-array_map(function($links) use (&$tree) { $tree->setPoint($links[0], $links[1]); },$hlp);
-echo $tree;
+
+foreach($hlp as list($ep, $links)) { $tree->setPoint($ep, $links); }
 shadowcopy($steps, $tree);
 
-$paths = $tree->reduceon('dragintra/start.txt');
+dump($tree->getPoint('dragintra/blog.txt'));
+$paths = $tree->reduceon('dragintra/blog.txt');
+$paths = $tree->categorize($paths);
+$paths = $tree->categorize($paths);
+$paths = $tree->categorize($paths);
+$paths = $tree->categorize($paths);
+$paths = $tree->categorize($paths);
 $paths = $tree->categorize($paths);
 pathify($paths);
 
@@ -181,20 +190,8 @@ $l = array_reduce(
     []
 );
 
-dump(array_filter($l, function ($paths, $file) use ($tree) { return $tree->getPoint($file) != 'LNK'; }, ARRAY_FILTER_USE_BOTH));
+dump($l);
 
-//$ep = SHADOW_PATH.'/dragintra/leverancierscontacten/';
-//mkdir($ep);
-//foreach(array_filter($l, function($paths) { return count($paths) == 1; }) as $file => $path) {
-//    if(copy(WIKI_PATH.$file, $ep.$file)) {
-//        $tree->removePoint($file);
-//    }
-//}
-//
-//dump(array_filter($l, function($paths) { return count($paths) != 1; }));
-
-
-//echo $tree;
 exit;
 
 function pathify($paths) {
@@ -276,10 +273,11 @@ function shadowcopy($steps, Treeify $tree)
         foreach ($files as $file => $path)
         {
             $parts = explode('/', $file);
-            if (copy(WIKI_PATH . $file, $epdir . end($parts)))
+            if (file_exists(WIKI_PATH . $file) && copy(WIKI_PATH . $file, $epdir . end($parts)))
             {
-                $tree->removePoint($file);
+                unlink(WIKI_PATH . $file);
             }
+            $tree->removePoint($file);
         }
 
         $after = array_filter($l, function ($paths, $file) use ($tree)
