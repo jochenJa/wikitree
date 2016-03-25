@@ -43,12 +43,13 @@ foreach($fileList as $fileName)
     }
 }
 
-$hlp = [];
-$hlp[] = $tree->removePoint('dragintra/implementatie.txt');
-$hlp[] = $tree->removePoint('dragintra/type_kost.txt');
-$hlp[] = $tree->removePoint('dragintra/zie_werkwijze.txt');
-$hlp[] = $tree->removePoint('dragintra/datacheck_fleet_pack.txt');
-$hlp[] = $tree->removePoint('dragintra/nieuwe_medewerker_in_dienst.txt');
+$hlp = [
+    $tree->removePoint('dragintra/implementatie.txt'),
+    $tree->removePoint('dragintra/type_kost.txt'),
+    $tree->removePoint('dragintra/datacheck_fleet_pack.txt'),
+    $tree->removePoint('dragintra/nieuwe_medewerker_in_dienst.txt'),
+    $tree->removePoint('dragintra/poolwagenbeheer.txt'),
+];
 
 $steps = [
     ['dragintra/keydealers.txt', '/dragintra/algemeen/', 4],
@@ -58,7 +59,6 @@ $steps = [
     ['dragintra/invoerders.txt', '/dragintra/algemeen/', 4],
     ['dragintra/touring.txt', '/dragintra/algemeen/', 4],
     ['dragintra/jdenl20.txt', '/dragintra/algemeen/', 4],
-    ['dragintra/contactgegevens_per_klant.txt', '/dragintra/algemeen/', 4],
     ['dragintra/contacten.txt', '/dragintra/algemeen/', 6],
     ['dragintra/fleet_pack_databases.txt', '/dragintra/algemeen/', 6],
 
@@ -66,15 +66,13 @@ $steps = [
 
     ['dragintra/naplaatsing_trekhaak.txt', '/dragintra/senior_driverdesk/', 3],
 
-    ['dragintra/budget_total.txt', '/dragintra/orderdesk/', 3],
-    ['dragintra/klantafspraken.txt', '/dragintra/orderdesk/', 5],
-
     ['dragintra/blogistics60.txt', '/dragintra/junior_driverdesk/', 4],
-    ['dragintra/contact_hr_blogistics.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/standaardgegevens.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/manueel_toevoegen_van_een_bestuurder.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/bestuurders.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/upload_van_boetelijsten.txt', '/dragintra/junior_driverdesk/', 4],
+    ['dragintra/zie_werkwijze.txt', '/dragintra/junior_driverdesk/', 4],
+    ['dragintra/manueel_opvoeren_van_boete.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/boetelijsten.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/boetes.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/brandstoflijsten.txt', '/dragintra/junior_driverdesk/', 4],
@@ -82,7 +80,6 @@ $steps = [
     ['dragintra/manueel_opvoeren_van_schadegeval.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/upload_van_schadelijst.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/schades.txt', '/dragintra/junior_driverdesk/', 4],
-    ['dragintra/brandstof1.txt', '/dragintra/junior_driverdesk/', 4],
 
     ['dragintra/klantafspraken_poolwagens.txt', '/dragintra/senior_driverdesk/', 3],
     ['dragintra/locatie_poolwagen.txt', '/dragintra/senior_driverdesk/', 3],
@@ -92,12 +89,14 @@ $steps = [
     ['dragintra/wagen_is_niet_mobiel.txt', '/dragintra/senior_driverdesk/', 3],
     ['dragintra/korte_termijn.txt', '/dragintra/senior_driverdesk/', 3],
     ['dragintra/stilstand.txt', '/dragintra/senior_driverdesk/', 3],
-    ['dragintra/poolwagenbeheer.txt', '/dragintra/senior_driverdesk/', 3],
     ['dragintra/verzekering.txt', '/dragintra/senior_driverdesk/', 3],
     ['dragintra/expertise_incorrect.txt', '/dragintra/senior_driverdesk/', 3],
     ['dragintra/akkoord_herstelling_poolwagens_per_klant.txt', '/dragintra/senior_driverdesk/', 3],
+    ['dragintra/levering_poolwagen.txt', '/dragintra/senior_driverdesk/', 3],
+    ['dragintra/voorlopige_inname_van_een_poolwagen.txt', '/dragintra/senior_driverdesk/', 3],
+    ['dragintra/definitieve_inname_van_een_poolwagen.txt', '/dragintra/senior_driverdesk/', 3],
+    ['dragintra/levering_nieuwe_wagen_bij_eoc_oude_wagen.txt', '/dragintra/senior_driverdesk/', 3],
     ['dragintra/opvragen_kost_neoc.txt', '/dragintra/senior_driverdesk/', 3],
-    ['dragintra/accessoire_poolwagen.txt', '/dragintra/senior_driverdesk/', 3],
     ['dragintra/wagenwissels.txt', '/dragintra/senior_driverdesk/', 3],
     ['dragintra/pechverhelping.txt', '/dragintra/senior_driverdesk/', 3],
     ['dragintra/banden.txt', '/dragintra/senior_driverdesk/', 3],
@@ -125,8 +124,6 @@ $steps = [
 
     ['dragintra/herrekeningen.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/schedule.txt', '/dragintra/junior_driverdesk/', 4],
-    ['dragintra/opvoeren_operationele_leasing_excl_verzekering.txt', '/dragintra/junior_driverdesk/', 4],
-    ['dragintra/contracten_personenwagens.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/cac-kaarten.txt', '/dragintra/junior_driverdesk/', 4],
 
     ['dragintra/algemene_mailing_ap.txt', '/dragintra/accounts_payable/', 4],
@@ -143,7 +140,6 @@ $steps = [
     ['dragintra/dragintra_car_configurator.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/controle.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/mail_referentieofferte.txt', '/dragintra/orderdesk/', 4],
-    ['dragintra/bedrag_boven_budget.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/uitnodiging_versturen.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/bestelproces_cc.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/bestelproces_met_vaste_wagens.txt', '/dragintra/orderdesk/', 4],
@@ -152,46 +148,43 @@ $steps = [
     ['dragintra/conventies_invoerders.txt', '/dragintra/accountmanager/', 4],
     ['dragintra/rapportering.txt', '/dragintra/accountmanager/', 4],
     ['dragintra/escalaties.txt', '/dragintra/accountmanager/', 4],
-    ['dragintra/implementatie.txt', '/dragintra/accountmanager/', 4],
     ['dragintra/mailings.txt', '/dragintra/accountmanager/', 4],
 ];
 shadowcopy($steps, $tree);
 
 $steps = [
-    ['dragintra/implementatie.txt', '/dragintra/fleetkennis/', 4],
+    ['dragintra/implementatie.txt', '/dragintra/accountmanager/', 4],
+    ['dragintra/poolwagenbeheer.txt', '/dragintra/senior_driverdesk/', 3],
     ['dragintra/type_kost.txt', '/dragintra/accounts_payable/', 4],
-    ['dragintra/zie_werkwijze.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/datacheck_fleet_pack.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/nieuwe_medewerker_in_dienst.txt', '/dragintra/senior_driverdesk/', 4],
     ['dragintra/start.txt', '/dragintra/', 4],
 ];
-
 foreach($hlp as list($ep, $links)) { $tree->setPoint($ep, $links); }
 shadowcopy($steps, $tree);
 
-dump($tree->getPoint('dragintra/blog.txt'));
-$paths = $tree->reduceon('dragintra/blog.txt');
-$paths = $tree->categorize($paths);
-$paths = $tree->categorize($paths);
-$paths = $tree->categorize($paths);
-$paths = $tree->categorize($paths);
-$paths = $tree->categorize($paths);
-$paths = $tree->categorize($paths);
-pathify($paths);
-
-$l = array_reduce(
-    $paths,
-    function($set, $path) {
-        $first = array_shift($path);
-        $set[in_array($first, ['#',"LNK"]) ? array_shift($path) : $first][implode('|',array_map('cleanupfn', $path))] = array_reverse($path);
-
-        return $set;
-    },
-    []
-);
-
-dump($l);
-
+//$paths = $tree->reduceon('dragintra/start.txt');
+//$paths = $tree->categorize($paths);
+////$paths = $tree->categorize($paths);
+////$paths = $tree->categorize($paths);
+////$paths = $tree->categorize($paths);
+////$paths = $tree->categorize($paths);
+////$paths = $tree->categorize($paths);
+////pathify($paths);
+////
+//$l = array_reduce(
+//    $paths,
+//    function($set, $path) {
+//        $first = array_shift($path);
+//        $set[in_array($first, ['#',"LNK"]) ? array_shift($path) : $first][implode('|',array_map('cleanupfn', $path))] = array_reverse($path);
+//
+//        return $set;
+//    },
+//    []
+//);
+////
+//dump($l);
+dump($tree->nonExisting());
 exit;
 
 function pathify($paths) {

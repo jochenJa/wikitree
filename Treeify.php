@@ -9,6 +9,7 @@
 class Treeify
 {
     private $tree = [];
+    private $nonExisting = [];
 
     public function scan(string $fileContents): array
     {
@@ -31,13 +32,14 @@ class Treeify
         $data['norm'] = $filePath;
         $filePath = strtolower($filePath);
         $data['lwr'] = $filePath;
-        $filePath = preg_replace('/:[ ]*/', '/', $filePath);
-        $data['path'] = $filePath;
-        $filePath = preg_replace('/[\' <>&]+/', '_', trim($filePath));
+        $filePath = preg_replace('/[\' <>&()\/]+/', '_', trim($filePath));
+        $filePath = preg_replace('/^_|_$/', '', $filePath);
         $data['special'] = $filePath;
+        $filePath = preg_replace('/:[_]*/', '/', $filePath);
+        $data['path'] = $filePath;
         $filePath .= '.txt';
         $data['file'] = $filePath;
-        //if(!file_exists('d:/wiki/pages/'.$filePath)) dump($data);
+        if(!file_exists('d:/wiki/pages/'.$filePath)) { $this->nonExisting[$parent][$filePath] = $data; };
         return $filePath;
     }
 
@@ -73,7 +75,7 @@ class Treeify
     public function reduceOn($entrypoint)
     {
         $paths = $this->getPoint($entrypoint);
-        if(! is_array($paths)) return [];
+        if(! is_array($paths)) { dump($entrypoint); return []; }
 
         $paths = $this->categorize(array_map(
             function($path) use ($entrypoint) { return [$path, $entrypoint]; },
@@ -116,6 +118,7 @@ class Treeify
     public function getPoint($point) { return isset($this->tree[$point]) ? $this->tree[$point] : []; }
     public function setPoint($point, $links) { return $this->tree[$point] = $links; }
     public function get() { return $this->tree; }
+    public function nonExisting() { return $this->nonExisting; }
 
     public function removePoint($ep)
     {
