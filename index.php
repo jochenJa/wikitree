@@ -180,6 +180,7 @@ $steps = [
     ['dragintra/start.txt', '/dragintra/', 4],
 
     ['dragintra/wettekst_voordeel_alle_aard_2012.txt', '/dragintra/brol/', 4],
+    ['dragintra/eerste_woord_uit_een_cel_verwijderen.txt', '/dragintra/brol/', 4],
     ['dragintra/brol.txt', '/dragintra/brol/', 8],
 ];
 foreach($hlp as list($ep, $links)) { $tree->setPoint($ep, $links); }
@@ -207,7 +208,7 @@ shadowcopy($steps, $tree);
 ////
 //dump($l);
 //dump($tree->nonExisting());
-//echo $tree;
+dump(array_filter($tree->get(), function($link) { return $link != "LNK"; }));
 exit;
 
 function pathify($paths) {
