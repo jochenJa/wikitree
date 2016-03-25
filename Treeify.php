@@ -32,10 +32,11 @@ class Treeify
         $data['norm'] = $filePath;
         $filePath = strtolower($filePath);
         $data['lwr'] = $filePath;
-        $filePath = preg_replace('/[\' <>&()\/]+/', '_', trim($filePath));
+        $filePath = preg_replace('/[\' <>&()\/.,:+!]+/', '_', trim($filePath));
+        $filePath = preg_replace('/_+/', '_', $filePath);
         $filePath = preg_replace('/^_|_$/', '', $filePath);
         $data['special'] = $filePath;
-        $filePath = preg_replace('/:[_]*/', '/', $filePath);
+        $filePath = str_replace('dragintra_', 'dragintra/', $filePath);
         $data['path'] = $filePath;
         $filePath .= '.txt';
         $data['file'] = $filePath;
@@ -62,10 +63,13 @@ class Treeify
         $treeview = '';
         foreach($this->tree as $filename => $linked)
         {
-            $hlp = is_array($linked) ? $linked : [];
-            $treeview .= sprintf(
-                '[%s] => [%s]<br>', $filename, implode(',', $hlp)
-            );
+            if(file_exists(WIKI_PATH.$filename)) {
+                $treeview .= sprintf(
+                    '[%s] => [%s]<br>',
+                    $filename,
+                    is_array($linked) ? implode(',', $linked) : $linked
+                );
+            }
         }
 
         return $treeview;
