@@ -32,11 +32,12 @@ class Treeify
         $data['norm'] = $filePath;
         $filePath = strtolower($filePath);
         $data['lwr'] = $filePath;
-        $filePath = preg_replace('/[\' <>&()\/.,:+!]+/', '_', trim($filePath));
+        $filePath = preg_replace('/[\' <>&()\/,:+!]+/', '_', trim($filePath));
+        $filePath = preg_replace('/[.]{2,}/', '_', $filePath);
         $filePath = preg_replace('/_+/', '_', $filePath);
         $filePath = preg_replace('/^_|_$/', '', $filePath);
         $data['special'] = $filePath;
-        $filePath = str_replace('dragintra_', 'dragintra/', $filePath);
+        $filePath = preg_replace('/^(dragintra_)/', 'dragintra/', $filePath);
         $data['path'] = $filePath;
         $filePath .= '.txt';
         $data['file'] = $filePath;

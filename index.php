@@ -181,6 +181,15 @@ $steps = [
 
     ['dragintra/wettekst_voordeel_alle_aard_2012.txt', '/dragintra/brol/', 4],
     ['dragintra/eerste_woord_uit_een_cel_verwijderen.txt', '/dragintra/brol/', 4],
+
+    ['dragintra/templates_for_lease_companies.txt', '/dragintra/brol/', 3],
+    ['dragintra/dragintra_specific_wiki_s.txt', '/dragintra/brol/', 5],
+    ['dragintra/bevestiging_2_klant.txt', '/dragintra/brol/', 3],
+    ['dragintra/interface_usage.txt', '/dragintra/brol/', 3],
+    ['dragintra/laatse_aanpassing_vaa_2012_o.a._pro-rata_berekening.txt', '/dragintra/brol/', 3],
+    ['dragintra/implementation_wiki_s.txt', '/dragintra/brol/', 3],
+    ['dragintra/levering_nieuwe_wagen_bij_kt_oude_wagen.txt', '/dragintra/brol/', 3],
+    ['dragintra/interne_contacten_mckinsey.txt', '/dragintra/brol/', 3],
     ['dragintra/brol.txt', '/dragintra/brol/', 8],
 ];
 foreach($hlp as list($ep, $links)) { $tree->setPoint($ep, $links); }
@@ -209,6 +218,7 @@ shadowcopy($steps, $tree);
 //dump($l);
 //dump($tree->nonExisting());
 dump(array_filter($tree->get(), function($link) { return $link != "LNK"; }));
+dump($tree->nonExisting());
 exit;
 
 function pathify($paths) {
