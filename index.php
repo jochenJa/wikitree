@@ -73,6 +73,7 @@ $steps = [
     ['dragintra/trekhaak_henkel.txt', '/dragintra/orderdesk/', 3],
     ['dragintra/modellen_printscreens.txt', '/dragintra/orderdesk/', 4],
 
+    ['dragintra/afhouding_van_het_loon.txt', '/dragintra/accounts_payable/', 4],
     ['dragintra/doorbelastingen.txt', '/dragintra/accounts_payable/', 4],
 
     ['dragintra/blogistics60.txt', '/dragintra/junior_driverdesk/', 4],
@@ -87,6 +88,7 @@ $steps = [
     ['dragintra/ontbrekende_gegevens_tankkaart.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/verzenden_van_tankkaart.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/opvoeren_pincode.txt', '/dragintra/junior_driverdesk/', 4],
+    ['dragintra/opvoeren.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/brandstof1.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/brandstoflijsten.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/brandstof.txt', '/dragintra/junior_driverdesk/', 10],
@@ -117,6 +119,7 @@ $steps = [
     ['dragintra/technische_keuring.txt', '/dragintra/senior_driverdesk/', 3],
 
     ['dragintra/budgetten_total.txt', '/dragintra/senior_driverdesk/', 3],
+    ['dragintra/personenwagen_extra_sap.txt', '/dragintra/senior_driverdesk/', 3],
     ['dragintra/wagengevens_invullen.txt', '/dragintra/senior_driverdesk/', 6],
 
     ['dragintra/verlies_van_boorddocumenten.txt', '/dragintra/senior_driverdesk/', 6],
@@ -157,7 +160,6 @@ $steps = [
     ['dragintra/controle.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/mail_referentieofferte.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/uitnodiging_versturen.txt', '/dragintra/orderdesk/', 4],
-    ['dragintra/linken_offertedossier.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/bestelproces_cc.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/bestelproces_met_vaste_wagens.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/bestelproces.txt', '/dragintra/orderdesk/', 4],
