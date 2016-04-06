@@ -10,6 +10,7 @@ class Treeify
 {
     private $tree = [];
     private $nonExisting = [];
+    private $namespaced = [];
 
     public function scan(string $fileContents): array
     {
@@ -49,7 +50,10 @@ class Treeify
     {
         return array_map(
             function($link)use ($parent) {
-                return $this->linkToFilePath($link, $parent); },
+                $file = $this->linkToFilePath($link, $parent);
+                $this->namespaced[$file] = ['link' => $link, 'namespace' => null];
+                return $file;
+            },
             array_filter($this->scan($fileContents))
         );
     }
@@ -132,6 +136,16 @@ class Treeify
 
         return $data;
     }
+
+    public function namespacePoint($file, $wikiPath = '/dragintra/')
+    {
+        $this->removePoint($file);
+        if(isset($this->namespaced[$file]) && ! $this->namespaced[$file]['namespace']) {
+            $this->namespaced[$file]['namespace'] = $wikiPath;
+        }
+    }
+
+    public function namespaced() {  return $this->namespaced; }
 }
 
 function normalize ($string) {

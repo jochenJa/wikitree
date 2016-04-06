@@ -35,12 +35,6 @@ foreach($fileList as $fileName)
         }
     );
 
-//    if(count($linked)) {
-//        $tree->add(
-//            $fileName,
-//            array_unique($linked)
-//        );
-//    } else $tree->add($fileName, '#');
     $tree->add(
         $fileName,
         array_unique($linked)
@@ -197,30 +191,31 @@ $steps = [
 foreach($hlp as list($ep, $links)) { $tree->setPoint($ep, $links); }
 shadowcopy($steps, $tree);
 
-//$paths = $tree->reduceon('dragintra/start.txt');
-//$paths = $tree->categorize($paths);
-////$paths = $tree->categorize($paths);
-////$paths = $tree->categorize($paths);
-////$paths = $tree->categorize($paths);
-////$paths = $tree->categorize($paths);
-////$paths = $tree->categorize($paths);
-////pathify($paths);
-////
-//$l = array_reduce(
-//    $paths,
-//    function($set, $path) {
-//        $first = array_shift($path);
-//        $set[in_array($first, ['#',"LNK"]) ? array_shift($path) : $first][implode('|',array_map('cleanupfn', $path))] = array_reverse($path);
-//
-//        return $set;
-//    },
-//    []
-//);
-////
-//dump($l);
-//dump($tree->nonExisting());
-dump(array_filter($tree->get(), function($link) { return $link != "LNK"; }));
-dump($tree->nonExisting());
+// update links after structuring files
+$nsfiles = $tree->namespaced();
+$nslinks = array_filter(array_combine(
+    array_column($nsfiles, 'link'),
+    array_map(
+        function($path) { return $path ? implode(':', array_filter(explode('/', $path))) : $path; },
+        array_column($nsfiles, 'namespace')
+    )
+));
+dump($nslinks);
+foreach($fileList as $fileName)
+{
+    if(! array_key_exists($fileName, $nsfiles))  { dump($fileName); continue; }
+
+    $content = file_get_contents(WIKI_PATH.$fileName);
+    foreach($tree->scan($content) as $link) {
+        if(! array_key_exists($link, $nslinks)) { dump([$link, $fileName]); continue; };
+
+        str_replace($link, str_replace('dragintra:', $nslinks[$link], $link), $content);
+    }
+
+    $parts = explode('/', $fileName);
+    file_put_contents(SHADOW_PATH.$nsfiles[$fileName]['namespace'].end($parts), $content);
+    unlink(WIKI_PATH.$fileName);
+}
 exit;
 
 function pathify($paths) {
@@ -271,6 +266,7 @@ function shadowcopy($steps, Treeify $tree)
             []
         );
         if(count($leftovers))dump($ep, $leftovers);
+
         $step = '/dragintra/';
         foreach (array_filter(explode('/', str_replace('dragintra/', '', $path))) as $dir)
         {
@@ -292,27 +288,23 @@ function shadowcopy($steps, Treeify $tree)
                 }
             }
         }
-        $epdir = SHADOW_PATH . $path;
 
         $files = array_filter($l, function ($paths)
         {
             return (count($paths) == 1);
         });
-        //dump($files);
-        foreach ($files as $file => $path)
+
+        foreach ($files as $file => $xpath)
         {
-            $parts = explode('/', $file);
-            if (file_exists(WIKI_PATH . $file) && copy(WIKI_PATH . $file, $epdir . end($parts)))
-            {
-                unlink(WIKI_PATH . $file);
-            }
-            $tree->removePoint($file);
+            $tree->namespacePoint($file, $path);
         }
 
-        $after = array_filter($l, function ($paths, $file) use ($tree)
-        {
-            return (count($paths) > 1 && $tree->getPoint($file) != 'LNK');
-        }, ARRAY_FILTER_USE_BOTH);
+        $after = array_filter(
+            $l,
+            function ($paths, $file) use ($tree) { return (count($paths) > 1 && $tree->getPoint($file) != 'LNK'); },
+            ARRAY_FILTER_USE_BOTH
+        );
+
         if (!count($after))
         {
             $tree->removePoint($ep);
