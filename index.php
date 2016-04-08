@@ -23,16 +23,27 @@ if ($handle = opendir(WIKI_PATH.WIKI_NAME.'/')) {
     closedir($handle);
 }
 
+$dirs = [
+    "/dragintra/",
+    "/dragintra/algemeen/",
+    '/dragintra/brol/',
+    '/dragintra/accountmanager/',
+    '/dragintra/fleetkennis/',
+    '/dragintra/senior_driverdesk/',
+    '/dragintra/junior_driverdesk/',
+    '/dragintra/accounts_payable/',
+    '/dragintra/orderdesk/'
+];
+
+foreach($dirs as $dir) cleanupDir($dir);
+
 $tree = new Treeify();
 
 foreach($fileList as $fileName)
 {
     $linked = array_filter(
         $tree->linkedFiles(file_get_contents(WIKI_PATH.$fileName), WIKI_PATH.$fileName),
-        function($filename) {
-            if(! file_exists(WIKI_PATH.$filename)) { return false; }
-            return true;
-        }
+        function($filename) { return file_exists(WIKI_PATH.$filename); }
     );
 
     $tree->add(
@@ -49,7 +60,6 @@ $hlp = [
     $tree->removePoint('dragintra/poolwagenbeheer.txt'),
     $tree->removePoint('dragintra/klantafspraken.txt'),
 ];
-
 $steps = [
     ['dragintra/keydealers.txt', '/dragintra/algemeen/', 4],
     ['dragintra/klant.txt', '/dragintra/algemeen/', 6],
@@ -138,11 +148,11 @@ $steps = [
     ['dragintra/herrekeningen.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/schedule.txt', '/dragintra/junior_driverdesk/', 4],
     ['dragintra/cac-kaarten.txt', '/dragintra/junior_driverdesk/', 4],
+    ['dragintra/algemene_mailing.txt', '/dragintra/junior_driverdesk/', 4],
 
     ['dragintra/algemene_mailing_ap.txt', '/dragintra/accounts_payable/', 4],
     ['dragintra/overzicht_facturatielijsten.txt', '/dragintra/accounts_payable/', 4],
     ['dragintra/facturatie.txt', '/dragintra/accounts_payable/', 6],
-    ['dragintra/algemene_mailing.txt', '/dragintra/accounts_payable/', 4],
 
     ['dragintra/leasing.txt', '/dragintra/fleetkennis/', 4],
     ['dragintra/wagen.txt', '/dragintra/fleetkennis/', 4],
@@ -165,6 +175,7 @@ $steps = [
 ];
 shadowcopy($steps, $tree);
 
+foreach($hlp as list($ep, $links)) { $tree->setPoint($ep, $links); }
 $steps = [
     ['dragintra/contactgegevens_per_klant.txt', '/dragintra/algemeen/', 4],
     ['dragintra/type_kost.txt', '/dragintra/accounts_payable/', 4],
@@ -178,44 +189,59 @@ $steps = [
     ['dragintra/wettekst_voordeel_alle_aard_2012.txt', '/dragintra/brol/', 4],
     ['dragintra/eerste_woord_uit_een_cel_verwijderen.txt', '/dragintra/brol/', 4],
 
-    ['dragintra/templates_for_lease_companies.txt', '/dragintra/brol/', 3],
+    ['dragintra/templates_for_lease_companies.tx t', '/dragintra/brol/', 3],
     ['dragintra/dragintra_specific_wiki_s.txt', '/dragintra/brol/', 5],
     ['dragintra/bevestiging_2_klant.txt', '/dragintra/brol/', 3],
     ['dragintra/interface_usage.txt', '/dragintra/brol/', 3],
     ['dragintra/laatse_aanpassing_vaa_2012_o.a._pro-rata_berekening.txt', '/dragintra/brol/', 3],
-    ['dragintra/implementation_wiki_s.txt', '/dragintra/brol/', 3],
+    ['dragintra/implementation_wiki_s.txt', '/dragintra/brol/', 6],
     ['dragintra/levering_nieuwe_wagen_bij_kt_oude_wagen.txt', '/dragintra/brol/', 3],
     ['dragintra/interne_contacten_mckinsey.txt', '/dragintra/brol/', 3],
     ['dragintra/brol.txt', '/dragintra/brol/', 8],
 ];
-foreach($hlp as list($ep, $links)) { $tree->setPoint($ep, $links); }
 shadowcopy($steps, $tree);
 
 // update links after structuring files
 $nsfiles = $tree->namespaced();
-$nslinks = array_filter(array_combine(
-    array_column($nsfiles, 'link'),
-    array_map(
-        function($path) { return $path ? implode(':', array_filter(explode('/', $path))) : $path; },
-        array_column($nsfiles, 'namespace')
-    )
-));
-dump($nslinks);
+$nslinks = [];
+foreach($nsfiles as $details) {
+    if(! $details['namespace']) continue;
+    foreach($details['links'] as $link) {
+        $nslinks[$link] = implode(':', array_filter(explode('/', $details['namespace'])));
+    }
+}
+
+//dump($nslinks);
+$failedLinks = [];
 foreach($fileList as $fileName)
 {
-    if(! array_key_exists($fileName, $nsfiles))  { dump($fileName); continue; }
+    if(! array_key_exists($fileName, $nsfiles))  { dump($fileName); }
 
     $content = file_get_contents(WIKI_PATH.$fileName);
-    foreach($tree->scan($content) as $link) {
-        if(! array_key_exists($link, $nslinks)) { dump([$link, $fileName]); continue; };
+    $links = [];
+    foreach($tree->scan($content) as $details) { $links[$details[0]] = $details[1]; };
 
-        str_replace($link, str_replace('dragintra:', $nslinks[$link], $link), $content);
+//    if($fileName == 'dragintra/algemene_mailing.txt') {
+//        dump($fileName, [$nsfiles[$fileName],$links, array_filter($nslinks, function($link) use($links) { return in_array($link, $links); }, ARRAY_FILTER_USE_KEY), $content]);
+//    }
+
+    foreach($links as $link) {
+        if(! array_key_exists($link, $nslinks) || ! $nslinks[$link]) { $fialedLinks[] = [$link, $fileName];  continue; };
+
+        $namespacedLink = preg_replace('/dragintra:/i', $nslinks[$link].':', $link);
+        $isreplaced = 0;
+        $content = str_replace('[['.$link.']]', '[['.$namespacedLink.']]', $content, $isreplaced);
+
+        if(! $isreplaced) dump([$link, $namespacedLink, $fileName, $content]);
+        //if($link == 'Dragintra:Ubench - overzicht') dump([$nsfiles['dragintra/ubench_-_overzicht.txt'],$link, $namespacedLink, $fileName, $content]);
     }
 
     $parts = explode('/', $fileName);
     file_put_contents(SHADOW_PATH.$nsfiles[$fileName]['namespace'].end($parts), $content);
-    unlink(WIKI_PATH.$fileName);
+    //unlink(WIKI_PATH.$fileName);
 }
+
+dump($failedLinks);
 exit;
 
 function pathify($paths) {
@@ -267,28 +293,6 @@ function shadowcopy($steps, Treeify $tree)
         );
         if(count($leftovers))dump($ep, $leftovers);
 
-        $step = '/dragintra/';
-        foreach (array_filter(explode('/', str_replace('dragintra/', '', $path))) as $dir)
-        {
-            $step .= $dir . '/';
-            $dir = SHADOW_PATH . $step;
-            if (!is_dir($dir))
-            {
-                mkdir($dir);
-            }
-            else
-            {
-                $files = glob($ep . '*');
-                foreach ($files as $file)
-                {
-                    if (is_file($file))
-                    {
-                        unlink($file);
-                    }
-                }
-            }
-        }
-
         $files = array_filter($l, function ($paths)
         {
             return (count($paths) == 1);
@@ -305,15 +309,19 @@ function shadowcopy($steps, Treeify $tree)
             ARRAY_FILTER_USE_BOTH
         );
 
-        if (!count($after))
-        {
-            $tree->removePoint($ep);
-        }
-        else
-        {
-            dump($ep, $after);
-            //pathify($paths);
-        }
+        if (!count($after)) $tree->removePoint($ep);
+        else dump($ep, $after);
     }
+}
+
+function cleanupDir($dir)
+{
+    $path = SHADOW_PATH . $dir;
+
+    if (! is_dir($path)) mkdir($path);
+    array_filter(
+        glob($path . '*'),
+        function($filename) { return is_file($filename) && preg_match('/.txt/', $filename) ? unlink($filename) : false; }
+    );
 }
 
