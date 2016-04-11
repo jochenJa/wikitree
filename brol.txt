@@ -76,3 +76,4 @@
 [[dragintra:schade_operationele_leasing|test]]
 [[dragintra:auto5|test]]
 [[dragintra:brandstoffile_lukoil|test]]
+jQuery('#plugin_move__tree').prepend(jQuery('<button />', {'text': 'hide added links'}).click(function() { jQuery('li[data-name="dragintra"].open li.type-d .type-f:not(:last-child)').hide() }));

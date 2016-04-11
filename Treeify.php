@@ -87,7 +87,7 @@ class Treeify
     public function reduceOn($entrypoint)
     {
         $paths = $this->getPoint($entrypoint);
-        if(! is_array($paths)) { dump($entrypoint); return []; }
+        if(! is_array($paths)) { dump('no links',$entrypoint, $this->getPoint($entrypoint)); return []; }
 
         $paths = $this->categorize(array_map(
             function($path) use ($entrypoint) { return [$path, $entrypoint]; },

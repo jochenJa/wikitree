@@ -123,7 +123,6 @@ $steps = [
     ['dragintra/technische_keuring.txt', '/dragintra/senior_driverdesk/', 3],
 
     ['dragintra/budgetten_total.txt', '/dragintra/senior_driverdesk/', 3],
-    ['dragintra/personenwagen_extra_sap.txt', '/dragintra/senior_driverdesk/', 3],
     ['dragintra/wagengevens_invullen.txt', '/dragintra/senior_driverdesk/', 6],
 
     ['dragintra/verlies_van_boorddocumenten.txt', '/dragintra/senior_driverdesk/', 6],
@@ -163,6 +162,7 @@ $steps = [
     ['dragintra/dragintra_car_configurator.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/controle.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/mail_referentieofferte.txt', '/dragintra/orderdesk/', 4],
+    ['dragintra/prijsvergelijk_elia.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/uitnodiging_versturen.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/bestelproces_cc.txt', '/dragintra/orderdesk/', 4],
     ['dragintra/bestelproces_met_vaste_wagens.txt', '/dragintra/orderdesk/', 4],
@@ -203,6 +203,8 @@ shadowcopy($steps, $tree);
 
 // update links after structuring files
 $nsfiles = $tree->namespaced();
+ksort($nsfiles);
+dump(array_filter(array_combine(array_keys($nsfiles), array_column($nsfiles, 'namespace'))));
 $nslinks = [];
 foreach($nsfiles as $details) {
     if(! $details['namespace']) continue;
@@ -215,7 +217,7 @@ foreach($nsfiles as $details) {
 $failedLinks = [];
 foreach($fileList as $fileName)
 {
-    if(! array_key_exists($fileName, $nsfiles))  { dump($fileName); }
+    if(! array_key_exists($fileName, $nsfiles))  { dump('this one was not in the tree',$fileName); }
 
     $content = file_get_contents(WIKI_PATH.$fileName);
     $links = [];
@@ -232,7 +234,7 @@ foreach($fileList as $fileName)
         $isreplaced = 0;
         $content = str_replace('[['.$link.']]', '[['.$namespacedLink.']]', $content, $isreplaced);
 
-        if(! $isreplaced) dump([$link, $namespacedLink, $fileName, $content]);
+        if(! $isreplaced) dump('nothing replaced, odd ...',[$link, $namespacedLink, $fileName, $content]);
         //if($link == 'Dragintra:Ubench - overzicht') dump([$nsfiles['dragintra/ubench_-_overzicht.txt'],$link, $namespacedLink, $fileName, $content]);
     }
 
@@ -241,7 +243,7 @@ foreach($fileList as $fileName)
     //unlink(WIKI_PATH.$fileName);
 }
 
-dump($failedLinks);
+dump('failedLinks',$failedLinks);
 exit;
 
 function pathify($paths) {
@@ -291,7 +293,7 @@ function shadowcopy($steps, Treeify $tree)
             },
             []
         );
-        if(count($leftovers))dump($ep, $leftovers);
+        if(count($leftovers))dump('leftovers', $ep, $leftovers);
 
         $files = array_filter($l, function ($paths)
         {
@@ -310,7 +312,7 @@ function shadowcopy($steps, Treeify $tree)
         );
 
         if (!count($after)) $tree->removePoint($ep);
-        else dump($ep, $after);
+        else dump('point is not done.', $ep, $after);
     }
 }
 
